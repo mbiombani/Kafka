@@ -1,65 +1,68 @@
-# Kafka for your data pipeline
-## Project summary
-Kafka has risen in popularity lately as businesses rely on it to power mission-critical applications and data pipelines.  
+# Kafka pour votre pipeline de données
+## Résumé du projet
+Kafka a gagné en popularité ces derniers temps car les entreprises s'appuient sur lui pour alimenter des applications critiques et des pipelines de données.  
 
-In this project, we will simulate a streaming ingestion pipeline using Kafka, and Kafka connect. Assuming we have our production database running on Postgres and we want to stream the Users table that contains customer data to different sources for different purposes. Kafka and Kafka Connect is perfect for this use case. In our simulation, we will write data to MySQL for other applications and S3 for our data lake ingestion.
+Dans ce projet, nous allons simuler un pipeline d'ingestion de flux en utilisant Kafka, et Kafka connect. En supposant que notre base de données de production tourne sur Postgres et que nous voulons diffuser en continu la table Users qui contient les données des clients vers différentes sources à des fins différentes. Kafka et Kafka Connect sont parfaits pour ce cas d'utilisation. Dans notre simulation, nous allons écrire des données dans MySQL pour d'autres applications et dans S3 pour l'ingestion de notre lac de données.
 
-## Project architecture
+## Architecture du projet
 ![architecture](/images/architecture.png)
-For our example, we will use Kafka connect to capture changes in the Users table from our production database on-premise and write to a Kafka topic. Two connectors will subscribe to the topic above, and write any changes to our email service's MySQL database as well as the S3, our data lake.
+Pour notre exemple, nous utiliserons Kafka connect pour saisir les changements dans le tableau "Utilisateurs" à partir de notre base de données de production sur place et écrire sur un sujet Kafka. Deux connecteurs s'abonneront au sujet ci-dessus et écriront les changements dans la base de données MySQL de notre service de courrier électronique ainsi que dans le S3, notre lac de données.
 ## Instructions
-### Clone the repo to your local machine
+### Clonez la prise en pension sur votre machine locale
 
 
-### Install docker and docker-compose
-We will use docker and docker-compose for this project, and you can quickly lookup how to install them for your OS.
+### Installer le docker et le docker-compositeur
+Pour ce projet, nous utiliserons les logiciels Docker et Docker-compose, et vous pouvez rapidement chercher comment les installer pour votre système d'exploitation.
 
-### Create an environment
-Assuming you already have conda installed, you can create a new env and install the required packages by running:
+### Créer un environnement
+En supposant que vous avez déjà installé conda, vous pouvez créer un nouvel env et installer les paquets nécessaires en l'exécutant :
 ```
 conda create -n kafka-pipeline python=3.7 -y
-conda activate kafka-pipeline
+conda activer kafka-pipeline
 pip install -r requirements.txt
 ```
-We will need PostgreSQL to connect to our source database (Postgres) and generate the streaming data. On Mac OS, you can install Postgresql using Homebrew by running:
+Nous aurons besoin de PostgreSQL pour nous connecter à notre base de données source (Postgres) et générer les données en continu. Sur Mac OS, vous pouvez installer Postgresql en utilisant Homebrew en l'exécutant :
 ```
-brew install PostgreSQL
+installer PostgreSQL
 ```
-You can google how to install Postgresql for other platforms
-### Start the production database (Postgres)
-We use docker-compose to start services with minimum effort. You can start the Postgres production database using:
+Vous pouvez chercher sur Google comment installer Postgresql pour d'autres plateformes
+### Démarrer la base de données de production (Postgres)
+Nous utilisons le docker-compose pour démarrer les services avec un minimum d'effort. Vous pouvez démarrer la base de données de production Postgres en utilisant :
 ```
 docker-compose -f docker-compose-pg.yml up -d
 ```
-Your Postgres database should be running on port 5432, and you can check the status of the container by typing `docker ps` to a terminal.
-### Generate streaming data
-I have written a short script to generate user data using the Faker library. The script will generate one record per second to our Postgres database, simulating a production database. You can run the script in a separate terminal tab using:
+
+Votre base de données Postgres devrait fonctionner sur le port 5432, et vous pouvez vérifier le statut du conteneur en tapant "docker ps" sur un terminal.
+### Générer des données en streaming
+J'ai écrit un court script pour générer des données utilisateur à l'aide de la bibliothèque Faker. Le script va générer un enregistrement par seconde dans notre base de données Postgres, simulant une base de données de production. Vous pouvez exécuter le script dans un onglet de terminal séparé en utilisant :
 ```
 python generate_data.py
 ```
-If everything is set up correctly, you will see outputs like so:
+Si tout est correctement mis en place, vous verrez des résultats similaires :
 ```
-Inserting data {'job': 'Physiotherapist', 'company': 'Miller LLC', 'ssn': '097-38-8791', 'residence': '421 Dustin Ramp Apt. 793\nPort Luis, AR 69680', 'username': 'terri24', 'name': 'Sarah Moran', 'sex': 'F', 'address': '906 Andrea Springs\nWest Tylerberg, ID 29968', 'mail': 'nsmith@hotmail.com', 'birthdate': datetime.date(1917, 6, 3), 'timestamp': datetime.datetime(2020, 6, 29, 11, 20, 20, 355755)}
-```
-### Start our Kafka broker
-Great, now that we have a production database running with data streaming to it, let's start the main components of our simulation. We will be running the following services:
-- Kafka broker: Kafa broker receives messages from producers and stores them by unique offset. The broker will also allow consumers to fetch messages by a topic, partition, and offset.
-- Zookeeper: Zookeeper keeps track of the status of Kafka cluster nodes as well as Kafka topics and partitions
-- Schema registry: Schema registry is a layer that will fetch and server your metadata (data about data) such as data type, precision, scale... and provides compatibility settings between different services.
-- Kafka Connect: Kafka Connect is a framework for connecting Kafka with external systems such as databases, key-value stores, search indexes, and file systems.
-- Kafdrop: Kafdrop is an opensource web UI fro viewing Kafka topics and browsing consumer groups. This will make inspecting and debugging our messages much easier.  
+Insertion de données {"emploi" : "kinésithérapeute", "entreprise" : Miller LLC", "ssn" : "097-38-8791", "résidence" : "421 Dustin Ramp Apt. 793\nPort Luis, AR 69680", "nom d'utilisateur" : "terri24", "nom" : "Sarah Moran", "sexe" : "F", "adresse" : "906 Andrea Springs\nWest Tylerberg, ID 29968", "courrier" : "nsmith@hotmail. com", "date de naissance" : datetime.date(1917, 6, 3), "timestamp" : datetime.datetime(2020, 6, 29, 11, 20, 20, 355755)}
 
-We can start all of these services by running:
+
+```
+### Démarrer notre courtier Kafka
+Super, maintenant que nous avons une base de données de production qui fonctionne avec des données en continu, commençons les principaux éléments de notre simulation. Nous allons faire fonctionner les services suivants :
+- Courtier Kafka : Le courtier Kafka reçoit les messages des producteurs et les stocke par décalage unique. Le courtier permettra également aux consommateurs de récupérer les messages par sujet, partition et décalage.
+- Zookeeper : Zookeeper suit l'état des nœuds du cluster Kafka ainsi que les sujets et les partitions Kafka
+- Registre des schémas : Le registre de schémas est une couche qui va chercher et servir vos métadonnées (données sur les données) telles que le type de données, la précision, l'échelle... et fournit des paramètres de compatibilité entre différents services.
+- Kafka Connect : Kafka Connect est un cadre permettant de connecter Kafka à des systèmes externes tels que des bases de données, des magasins de valeurs clés, des index de recherche et des systèmes de fichiers.
+- Kafdrop : Kafdrop est une interface web open source permettant de visualiser les sujets Kafka et de naviguer dans les groupes de consommateurs. Cela facilitera grandement l'inspection et le débogage de nos messages.  
+
+Nous pouvons lancer tous ces services en même temps :
 ```
 docker-compose -f docker-compose-kafka.yml up -d
 ```
-Wait a few minutes for the services to start up, and you can proceed to the next step. You can view logs outputs using:
+Attendez quelques minutes que les services démarrent, et vous pourrez passer à l'étape suivante. Vous pouvez consulter les sorties des journaux à l'aide de :
 ```
 docker-compose -f docker-compose-kafka.yml logs -f
 ```
 
-### Configure source connector
-There are two types of connectors in Kafka Connect Source connector and Sink connector. The names itself are self-explanatory. We will configure our source connector to our production database (Postgres) using the Kafka connect rest API.
+### Configurer le connecteur de source
+Il existe deux types de connecteurs dans Kafka Connect : le connecteur source et le connecteur évier. Les noms eux-mêmes sont explicites. Nous allons configurer notre connecteur source vers notre base de données de production (Postgres) en utilisant l'API de repos de Kafka connect.
 ```
 curl -i -X PUT http://localhost:8083/connectors/SOURCE_POSTGRES/config \
      -H "Content-Type: application/json" \
@@ -77,84 +80,27 @@ curl -i -X PUT http://localhost:8083/connectors/SOURCE_POSTGRES/config \
         }'
 
 ```
-When you see `HTTP/1.1 201 Created`, the connector is successfully created.
-What this command does is sending a JSON message with our configurations to the Kafka Connect instance. I will explain some of the configurations here, but you can reference the full list of configs [here](https://docs.confluent.io/current/connect/kafka-connect-jdbc/source-connector/source_config_options.html)
-- `connector.class`: we are using the JDBC source connector to connect to our production database and extract data.
-- `connection.url`: the connection string to our source database. Since we are using the docker's internal network, the database address is Postgres. If you are connecting to external databases, replace Postgres with the database's IP.
-- `connection.user` & `connection.password`:  credentials for our database
-- `poll.interval.ms`: frequency to poll for new data. We are polling every second.
-- `mode`: the mode for updating each table when it is polled. We are using an incremental key (index), but we can also update using a timestamp or bulk update.
-- `topic.prefix`: the prefix of the topic to write data to in Kafka
-- `table.whitelist`: list of table names to look for in our database. You can also set the `query` parameter to use a custom query.
+Lorsque vous voyez "HTTP/1.1 201 Created", le connecteur est créé avec succès.
+Cette commande permet d'envoyer un message JSON avec nos configurations à l'instance Kafka Connect. Je vais expliquer certaines des configurations ici, mais vous pouvez consulter la liste complète des configs [ici](https://docs.confluent.io/current/connect/kafka-connect-jdbc/source-connector/source_config_options.html)
+- `connector.class` : nous utilisons le connecteur source JDBC pour nous connecter à notre base de données de production et extraire des données.
+- `connection.url` : la chaîne de connexion à notre base de données source. Comme nous utilisons le réseau interne du docker, l'adresse de la base de données est Postgres. Si vous vous connectez à des bases de données externes, remplacez Postgres par l'adresse IP de la base de données.
+- `connection.user` & `connection.password` : les informations d'identification pour notre base de données
+- `poll.interval.ms` : fréquence de sondage pour les nouvelles données. Nous sondons chaque seconde.
+- Mode : mode de mise à jour de chaque table lors de l'interrogation. Nous utilisons une clé incrémentielle (index), mais nous pouvons également mettre à jour en utilisant un horodatage ou une mise à jour en masse.
+- topic.prefix` : le préfixe du sujet pour écrire des données dans Kafka
+- `table.whitelist` : liste des noms de tables à rechercher dans notre base de données. Vous pouvez également définir le paramètre "query" pour utiliser une requête personnalisée.
 
-With the Kafdrop instance running, you can open a browser and go to `localhost:9000` to see our `P_USERS` topic.
+Avec l'instance Kafdrop en cours d'exécution, vous pouvez ouvrir un navigateur et aller sur `localhost:9000` pour voir notre sujet `P_USERS`.
 ![kafdrop1](/images/kafdrop1.png)
-You can go into the topic and see some sample messages on our topic.
+Vous pouvez entrer dans le sujet et voir quelques exemples de messages sur notre sujet.
 ![kafdrop2](/images/kafdrop2.png)
-### Create sink connectors
-We will create two sink connectors (Mysql and S3) with our data already in Kafka. Let's start first with Mysql. Start the Mysql database by running:
-```
-docker-compose -f docker-compose-mysql.yml up -d
-```
-Here is our configuration:
-```
-curl -i -X PUT http://localhost:8083/connectors/SINK_MYSQL/config \
-     -H "Content-Type: application/json" \
-     -d '{
-               "connector.class":"io.confluent.connect.jdbc.JdbcSinkConnector",
-               "tasks.max":1,
-               "topics":"P_USERS",
-           "insert.mode":"insert",
-               "connection.url":"jdbc:mysql://mysql:3306/TEST",
-               "connection.user":"TEST",
-               "connection.password":"password",
-               "auto.create":true
-         }'
-```
-That's it. Your generated data should now be streaming from Postgres to Mysql. Let's go over the properties of the Mysql sink connector:
-- `insert.mode`: How to insert data to the database. You can choose between `insert` and `upsert`.
-- `topics`: The topic to read data from
-- `connection.url`: Sink connection URL
-- `connection.user` & `connection.password`: Sink credentials
-- `auto.create`: Auto-create table if not exits
 
-To write data to S3, it is equally easy and straight forward. You will need to setup environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in the `docker-compose-kafka.yml` file. After that you can create a S3 connector using the following configs:
-
-```
-curl -i -X PUT -H "Accept:application/json" \
-    -H  "Content-Type:application/json" http://localhost:8083/connectors/SINK_S3/config \
-    -d '
-{
-    "connector.class": "io.confluent.connect.s3.S3SinkConnector",
-    "s3.region": "ap-southeast-1",
-    "s3.bucket.name": "bucket-name",
-    "topics": "P_USERS",
-    "flush.size": "5",
-    "timezone": "UTC",
-    "tasks.max": "1",
-    "value.converter.value.subject.name.strategy": "io.confluent.kafka.serializers.subject.RecordNameStrategy",
-    "locale": "US",
-    "format.class": "io.confluent.connect.s3.format.json.JsonFormat",
-    "partitioner.class": "io.confluent.connect.storage.partitioner.DefaultPartitioner",
-    "internal.value.converter": "org.apache.kafka.connect.json.JsonConverter",
-    "storage.class": "io.confluent.connect.s3.storage.S3Storage",
-    "rotate.schedule.interval.ms": "6000"
-}'
-```
-Some notable configs:
-- `s3.region`: region of your S3 bucket
-- `s3.bucket.name`: bucket name to write data to
-- `topics`: topics to read data from
-- `format.class`: data format. You can choose from `JSON`, `Avro` and `Parquet`
-
-And voila, your pipeline is now complete. With a couple of docker-compose configurations files and connectors configurations, you have created a streaming pipeline that enables near real-time data analytics capability. Pretty powerful stuff! Kafka and its components are horizontally scalable. You can add more components to process real-time data such as Spark Streaming, KSQL, Beam, or Flink.
-
-## Clean up
-If you don't have any other docker containers running, you can shut down the ones for this project with the following command:
+## Nettoyer
+Si vous n'avez pas d'autres conteneurs de docker en cours d'utilisation, vous pouvez fermer ceux de ce projet avec la commande suivante :
 ```
 docker stop $(docker ps -aq)
 ```
-Optionally, you can clean up docker images downloaded locally by rinning:
+En option, vous pouvez nettoyer les images de dockers téléchargées localement en les rinçant :
 ```
-docker system prune
+système de docker prune
 ```
