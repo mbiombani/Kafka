@@ -8,10 +8,10 @@ Dans ce projet, nous allons simuler un pipeline d'ingestion de flux en utilisant
 ![architecture](/images/architecture.png)
 Pour notre exemple, nous utiliserons Kafka connect pour saisir les changements dans le tableau "Utilisateurs" à partir de notre base de données de production sur place et écrire sur un sujet Kafka. Deux connecteurs s'abonneront au sujet ci-dessus et écriront les changements dans la base de données MySQL de notre service de courrier électronique ainsi que dans le S3, notre lac de données.
 ## Instructions
-### Clonez la prise en pension sur votre machine locale
+### Clonez sur votre machine locale
 
 
-### Installer le docker et le docker-compositeur
+### Installer le docker et le docker-compose
 Pour ce projet, nous utiliserons les logiciels Docker et Docker-compose, et vous pouvez rapidement chercher comment les installer pour votre système d'exploitation.
 
 ### Créer un environnement
